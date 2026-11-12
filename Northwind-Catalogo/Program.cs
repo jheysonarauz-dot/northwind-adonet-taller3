@@ -1,0 +1,60 @@
+using System;
+using MySql.Data.MySqlClient;
+
+namespace Northwind.Catalogo
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("============================================================");
+            Console.WriteLine("NORTHWIND - CATÁLOGO DE PRODUCTOS");
+            Console.WriteLine("============================================================");
+            Console.WriteLine();
+            Console.WriteLine("--- Comprobación inicial de conexión y cantidad de productos ---");
+
+            // Completa los datos de tu servidor MySQL antes de ejecutar.
+            string cadenaConexion =
+                 "Server=localhost;Port=3306;Database=northwind;" +
+                 "User ID=TU_USUARIO;Password=TU_CONTRASENA;SslMode=Required;";
+
+            try
+            {
+                // Comprobación inicial: conectar y recuperar un solo valor.
+                using (MySqlConnection conexion = new(cadenaConexion))
+                {
+                    conexion.Open();
+                    Console.WriteLine("Conexión abierta correctamente.");
+
+                    string consulta = "SELECT COUNT(*) FROM Products;";
+                    using MySqlCommand comando = new(consulta, conexion);
+                    long cantidad = Convert.ToInt64(comando.ExecuteScalar());
+                    Console.WriteLine("Cantidad de productos: " + cantidad);
+                }
+
+                // Los ejemplos de cada aspecto se desarrollan en el otro archivo.
+                AspectosAdoNet.Ejecutar(cadenaConexion);
+
+                // Taller 3: búsqueda por precio y existencias (con su conteo) y búsqueda por nombre.
+                // Se llama con una conexión abierta. Para probarlas por separado,
+                // puede comentarse temporalmente la línea de AspectosAdoNet.Ejecutar.
+                using (MySqlConnection conexionBusqueda = new(cadenaConexion))
+                {
+                    conexionBusqueda.Open();
+                    BusquedaProductos.BuscarPorPrecioYStock(conexionBusqueda);
+                    BusquedaProductos.BuscarPorNombre(conexionBusqueda);
+                }
+
+            }
+            catch (ArgumentException)
+            {
+                Console.WriteLine("La cadena de conexión tiene un formato u opción no válida. Revisa cadenaConexion en Program.cs.");
+            }
+            catch (MySqlException error)
+            {
+                Console.WriteLine("Error de MySQL: " + error.Message);
+            }
+        }
+
+    }
+}
